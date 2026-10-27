@@ -1,0 +1,21 @@
+# Render Blueprint: creates the API web service from this repository.
+# Dashboard: New + > Blueprint > pick the repo, then fill in the three secret values when asked.
+services:
+  - type: web
+    name: bank-fraud-api
+    runtime: python
+    region: singapore            # same region as the Neon database (ap-southeast-1) for low latency
+    plan: free
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.8
+      - key: DATABASE_URL        # Neon pooled connection string
+        sync: false
+      - key: DIRECT_DATABASE_URL # Neon direct connection string (optional here, used by scripts/apply_sql.py)
+        sync: false
+      - key: API_KEY             # long random string; the same value goes into Vercel
+        sync: false
